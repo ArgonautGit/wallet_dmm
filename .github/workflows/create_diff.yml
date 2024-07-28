@@ -11,7 +11,7 @@ jobs:
           run: |
             sudo add-apt-repository --yes ppa:kicad/kicad-8.0-releases
             sudo apt-get update
-            sudo apt-get instally --yes kicad
+            sudo apt-get install --yes kicad
         - run: kicad-cli version
         - name: install kikit
           run: |

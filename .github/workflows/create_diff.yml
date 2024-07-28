@@ -1,0 +1,32 @@
+name: kicad-test
+on:
+    workflow_dispatch:
+
+jobs:
+    install_kicad:
+        runs-on: ubuntu-22.04
+
+        steps:
+        - name: install kicad
+          run: |
+            sudo add-apt-repository --yes ppa:kicad/kicad-8.0-releases
+            sudo apt-get update
+            sudo apt-get instally --yes kicad
+        - run: kicad-cli version
+        - name: install kikit
+          run: |
+            pip install kikit
+            pip install mistune==2.0.5
+            pip install PcbDraw
+            sudo apt-get install --yes build-essential make cmark xsltproc librsvg2-bin
+
+    generate_image:
+        needs: install_kicad
+        runs-on: ubuntu-22.04
+        steps: 
+          - name: checkout
+            uses: actions/checkout@v4
+          - name: export to image
+            run: |
+                kicad-cli sch export svg wallet_dmm.kicad_sch
+                kicad-cli pcb export svg wallet_dmm.kicad_pcb

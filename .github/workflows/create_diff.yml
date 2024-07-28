@@ -24,7 +24,6 @@ jobs:
         - name: export to image
           run: |
               kicad-cli sch export svg wallet_dmm.kicad_sch
-              kicad-cli pcb export svg wallet_dmm.kicad_pcb
             
 
     # generate_image:

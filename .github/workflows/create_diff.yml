@@ -19,14 +19,21 @@ jobs:
             pip install mistune==2.0.5
             pip install PcbDraw
             sudo apt-get install --yes build-essential make cmark xsltproc librsvg2-bin
+        - name: checkout
+          uses: actions/checkout@v4
+        - name: export to image
+          run: |
+              kicad-cli sch export svg wallet_dmm.kicad_sch
+              kicad-cli pcb export svg wallet_dmm.kicad_pcb
+            
 
-    generate_image:
-        needs: install_kicad
-        runs-on: ubuntu-22.04
-        steps: 
-          - name: checkout
-            uses: actions/checkout@v4
-          - name: export to image
-            run: |
-                kicad-cli sch export svg wallet_dmm.kicad_sch
-                kicad-cli pcb export svg wallet_dmm.kicad_pcb
+    # generate_image:
+    #     needs: install_kicad
+    #     runs-on: ubuntu-22.04
+    #     steps: 
+    #       - name: checkout
+    #         uses: actions/checkout@v4
+    #       - name: export to image
+    #         run: |
+    #             kicad-cli sch export svg wallet_dmm.kicad_sch
+    #             kicad-cli pcb export svg wallet_dmm.kicad_pcb

@@ -1849,7 +1849,7 @@
 	)
 	(symbol
 		(lib_id "MCU_ST_STM32L0:STM32L051K8Tx")
-		(at 58.42 102.87 0)
+		(at 49.53 102.87 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1858,7 +1858,7 @@
 		(fields_autoplaced yes)
 		(uuid "1e684092-c634-4347-9e9d-c7eb436ebb6a")
 		(property "Reference" "U2"
-			(at 63.1541 128.27 0)
+			(at 54.2641 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1867,7 +1867,7 @@
 			)
 		)
 		(property "Value" "STM32L051K8Tx"
-			(at 63.1541 130.81 0)
+			(at 54.2641 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1876,7 +1876,7 @@
 			)
 		)
 		(property "Footprint" "Package_QFP:LQFP-32_7x7mm_P0.8mm"
-			(at 48.26 125.73 0)
+			(at 39.37 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1886,7 +1886,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.st.com/resource/en/datasheet/stm32l051k8.pdf"
-			(at 58.42 102.87 0)
+			(at 49.53 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1895,7 +1895,7 @@
 			)
 		)
 		(property "Description" "STMicroelectronics Arm Cortex-M0+ MCU, 64KB flash, 8KB RAM, 32 MHz, 1.65-3.6V, 25 GPIO, LQFP32"
-			(at 58.42 102.87 0)
+			(at 49.53 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)

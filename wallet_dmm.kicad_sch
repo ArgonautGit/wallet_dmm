@@ -2363,7 +2363,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "1000R"
 			(at 74.93 41.9099 0)
 			(effects
 				(font
@@ -2631,7 +2631,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "1510R"
 			(at 74.93 29.2099 0)
 			(effects
 				(font
@@ -2701,7 +2701,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "C"
+		(property "Value" "100nF"
 			(at 74.93 52.0762 0)
 			(effects
 				(font

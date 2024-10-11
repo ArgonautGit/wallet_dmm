@@ -2341,7 +2341,7 @@
 	)
 	(wire
 		(pts
-			(xy 119.38 101.6) (xy 127 101.6)
+			(xy 119.38 101.6) (xy 123.19 101.6)
 		)
 		(stroke
 			(width 0)
@@ -2531,7 +2531,7 @@
 	)
 	(wire
 		(pts
-			(xy 127 101.6) (xy 127 95.25)
+			(xy 123.19 101.6) (xy 123.19 95.25)
 		)
 		(stroke
 			(width 0)
@@ -3542,72 +3542,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 59.6977 77.5991 0)
-		(mirror y)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "36a539b1-29d5-4697-a53a-366019bdad4a")
-		(property "Reference" "#PWR020"
-			(at 59.6977 83.9491 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 59.6977 81.5991 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 59.6977 77.5991 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 59.6977 77.5991 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 59.6977 77.5991 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "eec231e7-96bb-4734-bcaa-48b1f64f0a9d")
-		)
-		(instances
-			(project "wallet_dmm"
-				(path "/2feb1339-af30-4942-92c0-e58400bfb20d"
-					(reference "#PWR020")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C_Small")
 		(at 106.68 77.47 0)
 		(unit 1)
@@ -3947,7 +3881,7 @@
 	)
 	(symbol
 		(lib_id "power:VCC")
-		(at 127 95.25 0)
+		(at 123.19 95.25 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -3956,7 +3890,7 @@
 		(dnp no)
 		(uuid "59d3156f-6f35-4059-b319-ad6e141fdad7")
 		(property "Reference" "#PWR021"
-			(at 127 99.06 0)
+			(at 123.19 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3965,7 +3899,7 @@
 			)
 		)
 		(property "Value" "VCC"
-			(at 127 91.25 0)
+			(at 123.19 91.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3973,7 +3907,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 127 95.25 0)
+			(at 123.19 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3982,7 +3916,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 127 95.25 0)
+			(at 123.19 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3991,7 +3925,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"VCC\""
-			(at 127 95.25 0)
+			(at 123.19 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4443,7 +4377,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "project_specific:OLED_Header"
 			(at 158.75 45.72 0)
 			(effects
 				(font

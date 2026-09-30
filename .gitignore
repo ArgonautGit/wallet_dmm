@@ -1,4 +1,7 @@
+/build/
+__pycache__/
+.direnv/
+*-backups/
 fp-info-cache
-wallet_dmm-backups/
-wallet_dmm.kicad_prl
-~wallet_dmm.kicad_sch.lck
+*.kicad_prl
+*.lck

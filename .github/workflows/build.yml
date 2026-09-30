@@ -1,0 +1,27 @@
+name: build
+
+# Regenerates the schematic and board, runs ERC and DRC, and uploads the
+# manufacturing files. Nothing is committed back to the repository.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - name: Build
+        run: nix develop -c ./scripts/build.sh
+      - name: Check the committed outputs are current
+        run: git diff --stat --exit-code -- hardware fab/bom.csv fab/bom-jlcpcb.csv fab/cpl-jlcpcb.csv
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wallet_dmm-fab
+          path: |
+            fab/
+            build/erc.rpt
+            build/drc.rpt

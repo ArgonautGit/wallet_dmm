@@ -1,0 +1,6 @@
+# Host-side crates: the shared core and the simulation harness. The firmware
+# binary in app/ is its own workspace because it builds for thumbv6m.
+[workspace]
+resolver = "2"
+members = ["core", "sim"]
+exclude = ["app"]

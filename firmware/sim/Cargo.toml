@@ -1,0 +1,10 @@
+[package]
+name = "dmm-sim"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+dmm-core = { path = "../core" }
+embedded-graphics = "0.8"
+png = "0.17"

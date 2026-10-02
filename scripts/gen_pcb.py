@@ -60,6 +60,9 @@ PLACE = {
     "C10": (42.6, 36.4, 90),
     "SW4": (72.0, 5.5, 0),
     "J4": (51.4, 3.2, 90),
+    "U4": (28.6, 31.0, 0),
+    "R29": (24.2, 31.0, 90),
+    "R30": (22.4, 31.0, 90),
     "TP1": (40.4, 20.4, 0),
     "TP2": (37.6, 20.4, 0),
     # Voltage input.
@@ -106,6 +109,21 @@ PLACE = {
     "TP4": (69.4, 51.2, 0),
     "TP5": (72.8, 51.2, 0),
 }
+
+
+# 3D models for parts the KiCad library has none for (hardware/wallet_dmm.3dshapes,
+# from the LCSC/EasyEDA models, aligned to KiCad's footprints by their pads and
+# pegs; scripts/gen_models.py makes the battery). footprint: (file, offset, rotation)
+MODELS = {
+    "Buzzer_Murata_PKLCS1212E": ("PKLCS1212E4001.stpZ", (0, 0, 0), (0, 0, 0)),
+    "SW_Push_1P1T_XKB_TS-1187A": ("TS-1187A-B-A-B.stpZ", (0, 0, 0), (0, 0, 0)),
+    "SW_SPDT_Shouhan_MSK12C02": ("MSK12C02.stpZ", (0, 0.55, 0), (0, 0, 180)),
+    "USB_C_Receptacle_HRO_TYPE-C-31-M-12": ("TYPE-C-31-M-12.stpZ", (0, 1.40, 0), (0, 0, 180)),
+    # The LiPo on the back, hung off its wire pads.
+    "SolderWire-0.25sqmm_1x02_P4.5mm_D0.65mm_OD2mm": ("LiPo_403040_on_J5.stpZ", (0, 0, 0), (0, 0, 0)),
+}
+# Fitted by hand if at all: shown bare.
+NO_MODEL = {"J4"}
 
 
 def P(x, y):
@@ -173,6 +191,15 @@ class Board:
             # References live on the fab layer (assembly drawing), not silkscreen.
             fp.Reference().SetVisible(False)
             fp.Value().SetVisible(False)
+            if name in MODELS or ref in NO_MODEL:
+                fp.Models().clear()
+            if name in MODELS:
+                file, offset, rotation = MODELS[name]
+                m = pcbnew.FP_3DMODEL()
+                m.m_Filename = f"${{KIPRJMOD}}/wallet_dmm.3dshapes/{file}"
+                m.m_Offset = pcbnew.VECTOR3D(*offset)
+                m.m_Rotation = pcbnew.VECTOR3D(*rotation)
+                fp.Models().push_back(m)
             x, y, rot = PLACE[ref]
             fp.SetPosition(P(x, y))
             fp.SetOrientationDegrees(rot)

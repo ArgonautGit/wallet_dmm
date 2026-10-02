@@ -1,0 +1,27 @@
+[package]
+name = "wallet-dmm"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+dmm-core = { path = "../core" }
+embassy-stm32 = { version = "0.6", features = ["stm32l051k8", "time-driver-tim2", "time", "exti", "memory-x"] }
+embassy-executor = { version = "0.10", features = ["platform-cortex-m", "executor-thread"] }
+embassy-time = { version = "0.5", features = ["generic-queue-8"] }
+embassy-sync = "0.8"
+embassy-futures = "0.1"
+cortex-m = { version = "0.7", features = ["critical-section-single-core"] }
+cortex-m-rt = "0.7"
+panic-halt = "1.0"
+embedded-graphics = "0.8"
+ssd1306 = "0.10"
+
+[profile.release]
+lto = true
+opt-level = "s"
+codegen-units = 1
+debug = 2
+
+[profile.dev]
+opt-level = "s"

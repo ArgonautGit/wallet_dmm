@@ -3,7 +3,9 @@
 A multimeter the size of a credit card: DC volts, resistance, continuity and
 diode test, shown on a 0.91" OLED, with three buttons, an RGB LED and a piezo
 beeper. It runs from a small LiPo that charges over USB-C and is built around
-an STM32L051K8.
+an STM32L051K8, with Rust firmware and a simulation of the whole thing.
+
+![The assembled board](docs/renders/top.png)
 
 This is revision 3. Rev 1 (the October 2024 JLCPCB order) is commit `a01ea68`;
 rev 2 is the `v2` branch.
@@ -11,8 +13,8 @@ rev 2 is the `v2` branch.
 | | |
 |---|---|
 | Inputs | COM, V (10 MΩ) and Ω (resistance, continuity, diode) on a 2.54 mm header |
-| Voltage | ±31 V full scale; negative readings through a 1.5 V mid-rail bias |
-| Resistance | 0–100 kΩ against a 0.1 % 10 kΩ reference, 100 kΩ–10 MΩ against 1 MΩ |
+| Voltage | −30 V to +31 V; negative readings through a 1.55 V mid-rail bias |
+| Resistance | 0–200 kΩ against a 0.1 % 10 kΩ reference, 150 kΩ–10 MΩ against 1 MΩ, autoranging |
 | Continuity, diode | 0.3 mA test current, open-circuit 3.0 V |
 | Overload | both inputs survive ±30 V DC; not for mains or anything above 30 V |
 | Power | 3.7 V LiPo (protected cell), 100 mA USB-C charging, 3.0 V rail, about 5 µA off |
@@ -34,7 +36,9 @@ rev 2 is the `v2` branch.
   biased to a mid-rail reference, with a hold capacitor because the ADC wants
   a source below 50 kΩ. The Ω input has two reference ranges; its drive nodes
   are clamped to ground and the battery, so a voltage on it pushes at most
-  2.5 mA into the cell instead of into the MCU or the 3.0 V rail.
+  2.5 mA into the cell instead of into the MCU or the 3.0 V rail. What the
+  MCU pins' own clamps still pass would lift the rail while the MCU sleeps
+  (the LDO cannot sink current), so a TL431 (U4) holds it below 3.32 V.
 - **Everything else.** A resistor for each LED colour, with the anode on the
   battery so green and blue have headroom. The MCU's calibrated internal
   sensor replaces the TO-92 MCP9700. Decoupling sits at the pins. Every part
@@ -44,11 +48,14 @@ rev 2 is the `v2` branch.
 ## Layout of the repository
 
 - `hardware/`: KiCad 10 project (schematic, board, project rules, footprints
-  for the RGB LED and the OLED module)
-- `scripts/`: generators for the schematic and board, the autorouter wrapper,
-  and the fab-file export
+  for the RGB LED and the OLED module, 3D models for every part)
+- `scripts/`: generators for the schematic, board and 3D models, the
+  autorouter wrapper, the fab-file export and the renders
 - `fab/`: Gerbers, drill files, BOM and pick-and-place for JLCPCB, schematic
   and assembly PDFs
+- `firmware/`: Rust firmware and its simulation (see
+  [firmware/README.md](firmware/README.md))
+- `docs/`: renders of the board and the simulation results
 
 ## Building
 
@@ -70,6 +77,22 @@ python3 scripts/autoroute.py build/wallet_dmm.net
 
 The build stops on any ERC or DRC error and checks that the board matches the
 schematic.
+
+The renders in `docs/renders/` and a GLB of the populated board
+(`build/wallet_dmm.glb`, for any glTF viewer) come from:
+
+```sh
+./scripts/render.sh
+```
+
+Most parts use KiCad's own 3D models; the switches, buzzer, USB-C socket and
+RGB LED use the manufacturers' models (via EasyEDA). The OLED module and the
+battery are drawn by `scripts/gen_models.py`, which lights the OLED's pixels
+with the firmware's volts screen:
+
+```sh
+nix develop .#models -c uv run --with cadquery python scripts/gen_models.py
+```
 
 ## Ordering from JLCPCB
 
@@ -105,13 +128,16 @@ runs at 100 mA, so use 150 mAh or more; R3 sets the current (1000 V / R3).
    it is full.
 4. Flash over SWD (ST-Link on J4: 3V0, SWDIO, SWCLK, NRST, GND). Holding
    RESET while connecting works if firmware has put the MCU to sleep.
-5. With firmware running: V input shorted to COM reads 0 V (store the offset);
-   check a battery or bench supply against another meter and store the gain.
-   Ω input shorted reads the lead resistance (store it as zero).
+5. With the firmware running ([firmware/README.md](firmware/README.md)):
+   short V to COM in DC V and hold C for 3 s to store the zero; do the same
+   with the Ω leads in Ω mode. Then put 5–30 V on the V input, measure it with another
+   meter, and send `cal <volts>` over the UART (TP2) to set the gain.
 
-## Firmware notes
+## Firmware
 
-Firmware is not in this repo yet. The hardware expects:
+The firmware is in [firmware/](firmware/): Rust and Embassy, with all the
+maths and the UI in a host-tested crate. Its README covers the buttons,
+calibration, flashing and the simulation. The pins:
 
 | Pin | Use |
 |---|---|
@@ -131,14 +157,20 @@ Firmware is not in this repo yet. The hardware expects:
 | PA11, PA12, PC14 | buttons A, B, C to GND (enable pull-ups) |
 | PA9, PA10 | USART1 TX/RX on TP1/TP2 |
 
-- **Volts:** VIN = V + (V − VMID) × (R10 + R11) / R12, with every reading
-  scaled by VDDA from VREFINT (VREFINT_CAL was measured at 3.0 V). Use the
-  longest sample time and sample at no more than a few hundred Hz so the hold
-  capacitors recharge; the hardware oversampler gives the extra bits.
-- **Ohms, low range:** RX = R17 × Ω / (E_LO − Ω). **High range:** RX = R20 ×
-  Ω / (VDDA − Ω). If E_LO or Ω reads above VDDA, a voltage is on the input:
-  put both drive pins back to analog and show an overload.
-- **Continuity:** low range, beep below about 50 Ω.
-- **Off:** turn off VMID_EN and both drive pins, set the I2C pins to analog
-  before taking PC15 low (so the module is not powered through its pull-ups),
-  then enter Stop mode with the buttons as wake-up sources.
+## Simulation
+
+`firmware/simulate.sh` runs the front end in ngspice, feeds it through a
+model of the ADC into the firmware's own maths, and runs the release binary
+in Renode on an emulated STM32L051. Across 200 simulated boards with 1 %
+parts, calibrated volts are within ±4 mV up to ±5 V and ±33 mV at ±30 V,
+and ohms within ±0.34 % from 1 kΩ to 100 kΩ. The details and plots are in
+[firmware/README.md](firmware/README.md#simulation) and
+[docs/simulation/](docs/simulation/).
+
+![The firmware's display in Renode, step by step](docs/simulation/session.gif)
+
+## Renders
+
+| Front | Back, with the battery |
+|---|---|
+| ![Front](docs/renders/front.png) | ![Back](docs/renders/back.png) |

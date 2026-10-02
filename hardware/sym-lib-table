@@ -9,5 +9,6 @@
 	(lib (name "Switch")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Switch.kicad_sym")(options "")(descr ""))
 	(lib (name "MCU_ST_STM32L0")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/MCU_ST_STM32L0.kicad_sym")(options "")(descr ""))
 	(lib (name "Diode")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Diode.kicad_sym")(options "")(descr ""))
+	(lib (name "Reference_Voltage")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Reference_Voltage.kicad_sym")(options "")(descr ""))
 	(lib (name "Transistor_FET")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Transistor_FET.kicad_sym")(options "")(descr ""))
 )

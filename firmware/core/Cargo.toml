@@ -1,0 +1,8 @@
+[package]
+name = "dmm-core"
+version = "0.1.0"
+edition = "2021"
+description = "Measurement maths, UI state and display rendering for the wallet DMM"
+
+[dependencies]
+embedded-graphics = "0.8"

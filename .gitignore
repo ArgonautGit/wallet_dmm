@@ -5,3 +5,9 @@ __pycache__/
 fp-info-cache
 *.kicad_prl
 *.lck
+/firmware/target/
+/firmware/app/target/
+/firmware/sim/out/
+/firmware/renode/out/
+.history/
+~*.lck

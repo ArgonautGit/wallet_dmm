@@ -25,3 +25,18 @@ jobs:
             fab/
             build/erc.rpt
             build/drc.rpt
+
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - name: Test and build
+        run: |
+          nix develop .#firmware -c sh -c '
+            cd firmware && cargo fmt --all --check && cargo test -p dmm-core &&
+            cd app && cargo fmt --check && RUSTFLAGS="-D warnings -C link-arg=-Tlink.x" cargo build --release'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wallet-dmm-firmware
+          path: firmware/app/target/thumbv6m-none-eabi/release/wallet-dmm

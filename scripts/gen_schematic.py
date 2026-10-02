@@ -340,16 +340,19 @@ RES = {
     "330": ("C23138", "0603WAF3300T5E"),
     "680": ("C23228", "0603WAF6800T5E"),
     "1k": ("C21190", "0603WAF1001T5E"),
+    "4.7k": ("C23162", "0603WAF4701T5E"),
     "5.1k": ("C23186", "0603WAF5101T5E"),
     "10k": ("C25804", "0603WAF1002T5E"),
     "15k": ("C22809", "0603WAF1502T5E"),
     "47k": ("C25819", "0603WAF4702T5E"),
     "100k": ("C25803", "0603WAF1003T5E"),
+    "330k": ("C23137", "0603WAF3303T5E"),
     "470k": ("C23178", "0603WAF4703T5E"),
     "1M": ("C22935", "0603WAF1004T5E"),
 }
 CAP = {
     "10nF": ("C57112", "0603B103K500NT", "Fenghua"),
+    "22nF": ("C21122", "CL10B223KB8NNNC", "Samsung Electro-Mechanics"),
     "47nF": ("C1622", "CL10B473KB8NNNC", "Samsung Electro-Mechanics"),
     "100nF": ("C14663", "CC0603KRX7R9BB104", "YAGEO"),
     "1uF": ("C15849", "CL10A105KB8NNNC", "Samsung Electro-Mechanics"),
@@ -505,6 +508,18 @@ class Build:
         for i, (ref, val) in enumerate((("C6", "100nF"), ("C7", "100nF"), ("C8", "1uF"), ("C9", "10nF"))):
             self.C(ref, val, 177.8 + i * 12.7, 33.02, {"1": "+3V0", "2": "GND"})
         s.text("C6, C7 at VDD pins 1 and 17;\nC8, C9 at VDDA pin 5", (175.26, 44.45))
+
+        # Rail clamp: the LDO cannot sink, so current pushed in through an
+        # input's clamp diodes while the MCU sleeps would lift the rail.
+        u4 = s.place("U4", "Reference_Voltage:TL431DBZ", "TL431AIDBZR", 236.22, 38.1, 180,
+                     fields=part("C23892", "TL431AIDBZR", "Texas Instruments"),
+                     ref_at=(229.87, 44.45, "left"), val_at=(229.87, 46.99, "left"))
+        s.conn(u4, "1", "+3V0")
+        s.conn(u4, "3", "GND", bend=False)
+        r29 = self.R("R29", "330k", 248.92, 39.37, {"1": "+3V0"})
+        r30 = self.R("R30", "1M", 248.92, 46.99, {"2": "GND"})
+        s.wire(u4["2"], (u4["2"][0], 43.18), r29["2"])
+        s.text("U4 clamps +3V0 at 3.3 V\n(2.495 V x (1 + R29 / R30))", (226.06, 57.15))
         self.R("R9", "10k", 177.8, 129.54, {"1": "BOOT0", "2": "GND"})
         self.C("C10", "100nF", 190.5, 129.54, {"1": "NRST", "2": "GND"})
         rst = s.place("SW4", "Switch:SW_Push", "RESET", 205.74, 129.54, 270, footprint=BUTTON,
@@ -548,8 +563,8 @@ class Build:
         s.wire((325.12, y), c11["1"])
         s.wire((335.28, y), r12["1"])
         # Mid-rail bias, on only while measuring.
-        r13 = self.R("R13", "10k", 360.68, 45.72, {"1": "VMID_EN"})
-        r14 = self.R("R14", "10k", 360.68, 60.96, {"2": "GND"})
+        r13 = self.R("R13", "4.7k", 360.68, 45.72, {"1": "VMID_EN"})
+        r14 = self.R("R14", "5.1k", 360.68, 60.96, {"2": "GND"})
         c12 = self.C("C12", "1uF", 370.84, 60.96)
         r15 = self.R("R15", "1k", 383.54, 55.88, rot=90, nets={"2": "ADC_VMID"})
         ym = 55.88
@@ -560,7 +575,7 @@ class Build:
         s.wlabel("VMID", (340.36, ym))
         s.text("ADC_V = VMID + (VIN - VMID) x R12 / (R10 + R11 + R12)\n"
                "VIN = ADC_V + (ADC_V - VMID) x 20.0; VMID is measured on ADC_VMID.\n"
-               "VMID_EN high only while measuring: VMID = 1.5 V, range about +/-31 V.\n"
+               "VMID_EN high only while measuring: VMID = 1.56 V, range -31 to +32 V.\n"
                "Overload current is set by R10 + R11 (3 uA at 30 V) into the PA4 clamp.",
                (274.32, 71.12))
 
@@ -596,7 +611,7 @@ class Build:
         s.label("IN_OHM", (bus + 5.08, 116.84), (1, 0))
         s.nets.setdefault("IN_OHM", []).append("bus")
         r21 = self.R("R21", "47k", 370.84, 142.24, rot=90)
-        c13 = self.C("C13", "100nF", 381.0, 147.32)
+        c13 = self.C("C13", "22nF", 381.0, 147.32)
         s.wire((bus, 142.24), r21["1"])
         s.wire(r21["2"], (381.0, 142.24), (391.16, 142.24))
         s.wire((381.0, 142.24), c13["1"])
@@ -608,9 +623,11 @@ class Build:
                "  RX = R17 x ADC_OHM / (ADC_ELO - ADC_OHM).\n"
                "High range (100k-10M): drive OHM_HI high,\n"
                "  RX = R20 x ADC_OHM / (VDD - ADC_OHM).\n"
-               "The unused drive pin stays analog (high-Z). D2/D3 clamp E_LO/E_HI\n"
-               "to GND and the battery, so 30 V on the input pushes 2.5 mA\n"
-               "through R17 into the cell, never into the 3.0 V rail.",
+               "The unused drive pin stays analog (high-Z). Firmware first pulls\n"
+               "OHM_LO low: a passive load then reads ~0 V, a source does not.\n"
+               "D2/D3 clamp E_LO/E_HI to GND and the battery: 30 V on the input\n"
+               "pushes 2.5 mA into the cell; the <1 mA through the pin clamps\n"
+               "goes to U4, which holds the 3.0 V rail at 3.3 V.",
                (274.32, 182.88))
 
     # ----------------------------------------------------------------- UI
